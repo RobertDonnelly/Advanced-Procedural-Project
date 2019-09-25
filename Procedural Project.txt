@@ -1,0 +1,374 @@
+#include<stdio.h>
+#include<stdlib.h>
+#include<string.h>
+//ADVANCED PROCEDURAL PROJECT
+//STUDENT G00358931-ROBERT DONNELLY-GMIT
+
+//declare struct
+struct node {
+	//declare variables inside node.
+	int ppsNum;
+	char firstName[20];
+	char lastName[20];
+	char yearBorn[20];
+	char gender[10];
+	char email[30];
+	char nextKinName[20];
+	char lastAppointment[20];
+	float weight;
+	float height;
+	char allergies[3];
+	int smoke;
+	int drink;
+	int exercise;
+
+	struct node* NEXT;
+};
+//declare functions
+void AddPatient(struct node** top);
+void DisplayAllPatients(struct node* top);
+void DisplayAPatient(struct node* top);
+void editPatient(struct node* top);
+void deletePatient(struct node** top, int position);
+int seacrhForPPS(struct node* top, int searchPPS);
+void writeFile(struct node* top, FILE* file);
+
+void main() {
+	//declare variables
+	struct node* headPtr = NULL;
+	int choice;
+	int searchppsnum;
+	int position;
+	char myPassword[55] = "pass1";//hard coded password
+	char myUsername[55] = "user1";//hard coded username
+	int access=1;
+	FILE* report;
+
+  //https://www.geeksforgeeks.org/print-in-place-of-characters-for-reading-passwords-in-c/
+	while (access != 0) {//will continue to ask user to enter login details until they are found to be true
+		char password[55];
+		char username[55];
+		printf("username: ");
+		scanf("%s", username);
+		printf("password: ");
+		int p = 0;
+		do {
+			password[p] = getch();
+			if (password[p] != '\r') {
+				printf("*");
+			}
+			p++;
+		} while (password[p - 1] != '\r');
+		password[p - 1] = '\0';
+		//printf("\nYou have entered %s as password.\n", password);
+		printf("\n\n");
+		if ((strcmp(myUsername ,username))||(strcmp(myPassword, password)))//string compare username and password
+		{
+			printf("!Access Denied!\n");
+		}
+		else {
+			printf("Access Granted\n");
+			access = 0;//sets int to 0 and will exit while loop and display menu.
+		}
+	}
+
+	printf("________________________________________________________________________\n");
+	printf("____________________________________MENU________________________________\n");
+	printf("________________________________________________________________________\n\n");
+	printf("Please Enter 1 to add a patient\n");
+	printf("Please Enter 2 to display all Patients Details\n");
+	printf("Please Enter 3 to display a Patients Details\n");
+	printf("Please Enter 4 to Update a Patients Details\n");
+	printf("Please Enter 5 to Delete a Patient\n");
+	printf("Please Enter 6 to Generate Statistics(not working)\n");
+	printf("Please Enter 7 to print all Patient Details into a File\n");
+	printf("Please Enter 8 to List All Patients in order of thier last Appointment(not working)\n");
+	printf("-1 to Exit\n");
+
+	scanf("%d", &choice);//user chooses the function they wish to perform.
+
+	while (choice != -1)
+	{
+		if (choice == 1)
+		{
+			printf("Adding Patient\n");
+			AddPatient(&headPtr);
+		}
+		else if (choice == 2)
+		{
+			printf("Displaying All Patients\n");
+			DisplayAllPatients(headPtr);
+		}
+		else if (choice == 3)
+		{
+			printf("Displaying a Patients Details\n");
+			DisplayAPatient(headPtr);
+		}
+		else if (choice == 4)
+		{
+			printf("Updating a Patients Details\n");
+			editPatient(headPtr);
+
+		}
+		else if (choice == 5)
+		{
+			printf("Deleting a Patient\n");
+			printf("enter patient PPS Number.\n");
+			scanf("%d", &position);
+			deletePatient(&headPtr, position);
+		}
+		else if (choice == 6)
+		{
+			printf("Generating Statistics...\n");
+			printf("Nothing Happened!\n");
+		}
+		else if (choice == 7)
+		{
+			printf("Printing all patients into a file...\n");
+			printf("file opened...\n");
+			report = fopen("report.txt", "a+");//will add to file if it exists or create file if it was not found in directory
+			writeFile(headPtr, report);
+		}
+		else if (choice == 8)
+		{
+			printf("Listing Patients in order of Appointment...\n");
+			printf("Nothing Happened!\n");
+		}
+		else
+		{
+			printf("that is not an option please try again\n");
+		}
+
+		printf("________________________________________________________________________\n");
+		printf("____________________________________MENU________________________________\n");
+		printf("________________________________________________________________________\n\n");
+		printf("Please Enter 1 to add a patient\n");
+		printf("Please Enter 2 to display all Patients Details\n");
+		printf("Please Enter 3 to display a Patients Details\n");
+		printf("Please Enter 4 to Update a Patients Details\n");
+		printf("Please Enter 5 to Delete a Patient\n");
+		printf("Please Enter 6 to Generate Statistics(not working)\n");
+		printf("Please Enter 7 to print all Patient Details into a File\n");
+		printf("Please Enter 8 to List All Patients in order of thier last Appointment(not working)\n");
+		printf("-1 to Exit\n");
+
+		scanf("%d", &choice);
+	}
+}
+
+void AddPatient(struct node** top)
+{
+	struct node* newNode;//creates new node at end of linked list.
+	int ppsNumber;
+
+	printf("please Enter PPS number of new Patient\n");
+	scanf("%ld", &ppsNumber);
+
+	if (seacrhForPPS(*top, ppsNumber) == 1)//if seacrhForPPS is returned as 1 then user cannot add the patient. if seacrhForPPS is returned as 0 then user can ad the patient
+	{
+		printf("Sorry that PPS number already exists\n");
+		return;
+	}
+
+	newNode = (struct node*)malloc(sizeof(struct node));//creates new node at end of list
+
+	newNode->ppsNum = ppsNumber;//assigns ppsnumber to newNode
+
+	printf("Enter Patient First Name:\n");
+	scanf("%s", newNode->firstName);
+
+	printf("Enter Patient Last Name:\n");
+	scanf("%s", newNode->lastName);
+
+	printf("Enter Patient BirthDay:\n");
+	scanf("%s", newNode->yearBorn);
+
+	printf("Enter Patient Gender:\n");
+	scanf("%s", newNode->gender);
+
+	printf("Enter Patient Email:\n");
+	scanf("%s", newNode->email);
+
+	printf("Enter Patient Next of Kin Name:\n");
+	scanf("%s", newNode->nextKinName);
+
+	printf("Enter Patient's Last Appointment:\n");
+	scanf("%s", newNode->lastAppointment);
+
+	printf("Enter Patient Weight(kg):\n");
+	scanf("%f", &newNode->weight);
+
+	printf("Enter Patient Height(5.5 = 5'5):\n");
+	scanf("%f", &newNode->height);
+
+	printf("Does Patient have Allegires(yes\no):\n");
+	scanf("%s", newNode->allergies);
+
+	printf("Enter Patient cigarettes smoked per day:\n");
+	scanf("%d", &newNode->smoke);
+
+	printf("Enter Patient alchohol unites consumed per week:\n");
+	scanf("%d", &newNode->drink);
+
+	printf("Enter times Patient exercise's per week:\n");
+	scanf("%d", &newNode->exercise);
+
+	newNode->NEXT = *top;
+	*top = newNode;
+
+}
+
+void DisplayAllPatients(struct node* top)
+{
+	struct node* temp = top;//starts at first node.
+	while (temp != NULL)//will loop untill all patients are displayed
+	{
+		printf("PPS Number: %d\n FirstName: %s\n LastName: %s\n yearBorn: %s\n gender: %s\n email: %s\n nextKinName: %s\n lastAppointment: %s\n weight: %.2f\n height: %.2f\n allergies: %s\n smoke: %d\n drink: %d\n exercise: %d\n \n", 
+		temp->ppsNum, temp->firstName, temp->lastName, temp->yearBorn, temp->gender, temp->email, temp->nextKinName, temp->lastAppointment, temp->weight, temp->height, temp->allergies, temp->smoke, temp->drink, temp->exercise);
+		temp = temp->NEXT;//moves to next node.
+	}
+}
+
+void DisplayAPatient(struct node* top)
+{
+	int pps;//user will bee asked pps to display and this int will be compared to all ppsNums in linked list. 
+	struct node* temp = top;//starts from first node
+
+	printf("please enter pps of patient to display\n");
+	scanf("%d", &pps);
+	while (temp != NULL)//will loop through all patients until if statement is true or false
+	{
+		if ((temp->ppsNum == pps))
+		{
+			printf("PPS Number: %d\n FirstName: %s\n LastName: %s\n yearBorn: %s\n gender: %s\n email: %s\n nextKinName: %s\n lastAppointment: %s\n weight: %.2f\n height: %.2f\n allergies: %s\n smoke: %d\n drink: %d\n exercise: %d\n \n", 
+			temp->ppsNum, temp->firstName, temp->lastName, temp->yearBorn, temp->gender, temp->email, temp->nextKinName, temp->lastAppointment, temp->weight, temp->height, temp->allergies, temp->smoke, temp->drink, temp->exercise);
+			return;
+		}
+		temp = temp->NEXT;
+	}
+	printf("sorry that patient does not exist...\n");//if statment is false inform's user that is the case.
+}
+
+int seacrhForPPS(struct node* top, int searchPPS)
+{
+	int found = 0;//
+	struct node* temp = top;
+
+	while (temp != NULL)//this will check every ppsnumber until end of linked list
+	{
+		if ((temp->ppsNum == searchPPS))
+		{
+			found = 1;
+			return found;
+		}
+		temp = temp->NEXT;
+	}
+	return found;//if found is returned as 1 then user cannot add the patient. if found is returned as 0 then user can ad the patient
+}
+
+void editPatient(struct node* top)
+{
+	int pps = 1;//this int will be checked against all the pssNum's until one matches or none matches
+	printf("enter patient pps\n");
+	scanf("%d", &pps);
+
+	struct node* newNode;
+	newNode = top;
+
+	while (newNode != NULL)
+	{
+		if (newNode->ppsNum == pps)//if true user can now re enter this patients details
+		{
+			printf("Enter Patient First Name:\n");
+			scanf("%s", newNode->firstName);
+
+			printf("Enter Patient Last Name:\n");
+			scanf("%s", newNode->lastName);
+
+			printf("Enter Patient BirthDay:\n");
+			scanf("%s", newNode->yearBorn);
+
+			printf("Enter Patient Gender:\n");
+			scanf("%s", newNode->gender);
+
+			printf("Enter Patient Email:\n");
+			scanf("%s", newNode->email);
+
+			printf("Enter Patient Next of Kin Name:\n");
+			scanf("%s", newNode->nextKinName);
+
+			printf("Enter Patient's Last Appointment:\n");
+			scanf("%s", newNode->lastAppointment);
+
+			printf("Enter Patient Weight(kg):\n");
+			scanf("%f", &newNode->weight);
+
+			printf("Enter Patient Height(5.5 = 5'5):\n");
+			scanf("%f", &newNode->height);
+
+			printf("Does Patient have Allegires:\n");
+			scanf("%s", newNode->allergies);
+
+			printf("Enter Patient cigarettes smoked per day:\n");
+			scanf("%d", &newNode->smoke);
+
+			printf("Enter Patient alchohol unites consumed per week:\n");
+			scanf("%d", &newNode->drink);
+
+			printf("Enter times Patient exercise's per week\n");
+			scanf("%d", &newNode->exercise);
+
+			return;
+		}
+		newNode = newNode->NEXT;//if above statement is not true next node is to be checked
+	}
+	printf("the pps Number you entered is not on our system, try again...\n");
+}
+
+//https://www.geeksforgeeks.org/linked-list-set-3-deleting-node/
+void deletePatient(struct node** top, int position)
+{
+	// Store head node 
+	struct node* temp = *top, *prev;
+
+	// If head node itself holds the pps to be deleted 
+	if (temp != NULL && temp->ppsNum == position)
+	{
+		*top = temp->NEXT;
+		free(temp);
+		printf("patient deleted\n");
+		return;
+	}
+
+	// Search for the key to be deleted, keep track of the 
+	// previous node as we need to change 'prev->NEXT' 
+	while (temp != NULL && temp->ppsNum != position)
+	{
+		prev = temp;
+		temp = temp->NEXT;
+	}
+
+	// If key was not present in linked list 
+	if (temp == NULL)
+	{
+		printf("patient does not exist, try again...\n");
+		return;
+	}
+	// Unlink the node from linked list 
+	prev->NEXT = temp->NEXT;
+
+	free(temp);  // Free memory 
+}
+
+void writeFile(struct node* top, FILE* file)//file is passed in through parameters
+{
+	struct node* temp = top;//this will make the fprintf begin from patient at front of linked list.
+	while (temp != NULL)
+	{
+		fprintf(file, "%d %s %s %s %s %s %s %s %.2f %.2f %s %d %d %d\n", 
+		temp->ppsNum, temp->firstName, temp->lastName, temp->yearBorn, temp->gender, temp->email, temp->nextKinName, temp->lastAppointment, temp->weight, temp->height, temp->allergies, temp->smoke, temp->drink, temp->exercise);
+		temp = temp->NEXT;//procees continues to next node untill it is null
+	}
+	fclose(file);
+	printf("Patients successfully printed into file and closed file successfully!\n");//informs user of what has happened.
+}
